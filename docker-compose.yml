@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16
+    container_name: tvdatahub-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: tvdatahub
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - tvdatahub-net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: tvdatahub-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@tvdatahub.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - tvdatahub-net
+
+  tvdatahub:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5001:80"
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - tvdatahub-net
+
+networks:
+  tvdatahub-net:
+    driver: bridge
+    
+volumes:
+  pg_data:
+  pgadmin_data:
