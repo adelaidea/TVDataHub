@@ -4,11 +4,11 @@ using TVDataHub.Domain.Entity;
 
 namespace TVDataHub.DataAccess.Configuration;
 
-public sealed class ShowConfiguration : IEntityTypeConfiguration<Show>
+public sealed class TVShowConfiguration : IEntityTypeConfiguration<TVShow>
 {
-    public void Configure(EntityTypeBuilder<Show> builder)
+    public void Configure(EntityTypeBuilder<TVShow> builder)
     {
-        builder.ToTable("Show");
+        builder.ToTable("TVShows");
 
         builder.HasKey(s => s.Id);
         
@@ -22,7 +22,7 @@ public sealed class ShowConfiguration : IEntityTypeConfiguration<Show>
 
         builder
             .HasMany(s => s.Cast)
-            .WithOne(c => c.Show)
-            .HasForeignKey(c => c.ShowId);
+            .WithOne(c => c.TVShow)
+            .HasForeignKey(c => c.TVShowId);
     }
 }

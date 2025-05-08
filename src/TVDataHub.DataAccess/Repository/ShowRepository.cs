@@ -4,33 +4,65 @@ using TVDataHub.Domain.Repository;
 
 namespace TVDataHub.DataAccess.Repository;
 
-public class ShowRepository(
-    TVDataHubContext dbContext) : IShowRepository
+public class TVShowRepository(
+    TVDataHubContext dbContext) : ITVShowRepository
 {
-    private readonly int _pageSize = 10;
-    
-    public async Task UpsertShow(Show show)
+    public async Task UpsertTVShow(TVShow tvShow)
     {
-        var existingShow = await dbContext.Shows
-            .FirstOrDefaultAsync(s => s.Id == show.Id);
+        var existingTVShow = await dbContext.TVShows
+            .FirstOrDefaultAsync(s => s.Id == tvShow.Id);
 
-        if (existingShow == null)
+        if (existingTVShow == null)
         {
-            await dbContext.Shows.AddAsync(show);
+            await dbContext.TVShows.AddAsync(tvShow);
         }
         else
-        {            
-            dbContext.Entry(existingShow).CurrentValues.SetValues(show);
+        {
+            dbContext.Entry(existingTVShow).CurrentValues.SetValues(tvShow);
         }
 
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<IReadOnlyCollection<Show>> GetPaginated(int page = 0) =>
-        await dbContext.Shows
+    public async Task UpsertTVShows(IEnumerable<TVShow> tvShows)
+    {
+        var tvShowIds = tvShows.Select(s => s.Id).ToList();
+
+        var existingTVShows = await dbContext.TVShows
+            .Where(s => tvShowIds.Contains(s.Id))
+            .ToDictionaryAsync(s => s.Id);
+
+        foreach (var tvShow in existingTVShows)
+        {
+            if (existingTVShows.TryGetValue(tvShow.Key, out var existing))
+            {
+                dbContext.Entry(existing).CurrentValues.SetValues(tvShow.Value);
+            }
+            else
+            {
+                await dbContext.TVShows.AddAsync(tvShow.Value);
+            }
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task<IReadOnlyCollection<TVShow>> GetPaginated(int pageSize, int page = 1) =>
+        await dbContext.TVShows
             .Include(s => s.Cast)
-            .OrderBy(s => s.Id)
-            .Skip(page * _pageSize)
-            .Take(_pageSize)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
+
+    public async Task<int> GetLastId() =>
+        await dbContext.TVShows
+            .OrderByDescending(s => s.Id)
+            .Select(s => s.Id)
+            .FirstOrDefaultAsync();
+
+    public async Task<Dictionary<int, long>> GetLastUpdatedMoment() =>
+        await dbContext.TVShows
+            .AsNoTracking()
+            .Select(s => new { s.Id, s.Updated })
+            .ToDictionaryAsync(x => x.Id, x => x.Updated);
 }

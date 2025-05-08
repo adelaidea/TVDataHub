@@ -8,16 +8,16 @@ public class
     CastMemberRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
 {
     private readonly CastMemberRepository _castMemberRepository = new(fixture.DbContext);
-    private readonly ShowRepository _showRepository = new(fixture.DbContext);
+    private readonly TVShowRepository _tvShowRepository = new(fixture.DbContext);
 
     [Fact]
     public async Task GivenANonExistedCastMember_WhenUpserting_NewValueShouldBeCreated()
     {
         // Arrange
-        var show = new Show
+        var tvShow = new TVShow
         {
             Id = 1,
-            Name = "Test Show"
+            Name = "Test TVShow"
         };
 
         var birthday = new DateOnly(1990, 5, 10);
@@ -27,10 +27,10 @@ public class
             Id = 1,
             Name = "Test Actor",
             Birthday = birthday,
-            ShowId = show.Id
+            TVShowId = tvShow.Id
         };
 
-        await _showRepository.UpsertShow(show);
+        await _tvShowRepository.UpsertTVShow(tvShow);
 
         // Act
         await _castMemberRepository.UpsertCastMember(castMember);
@@ -41,27 +41,27 @@ public class
         value.Should().NotBeNull();
         value!.Name.Should().Be("Test Actor");
         value.Birthday.Should().Be(new DateOnly(1990, 5, 10));
-        value.ShowId.Should().Be(show.Id);
+        value.TVShowId.Should().Be(tvShow.Id);
     }
 
     [Fact]
     public async Task GivenAnExistingCastMember_WhenUpserting_ExistingValueShouldBeUpdated()
     {
         // Arrange
-        var show = new Show
+        var tvShow = new TVShow
         {
             Id = 2,
-            Name = "Test Show 1"
+            Name = "Test TVShow 1"
         };
 
-        await _showRepository.UpsertShow(show);
+        await _tvShowRepository.UpsertTVShow(tvShow);
 
         var originalCast = new CastMember
         {
             Id = 2,
             Name = "Initial Name",
             Birthday = new DateOnly(1990, 1, 1),
-            ShowId = show.Id
+            TVShowId = tvShow.Id
         };
 
         await _castMemberRepository.UpsertCastMember(originalCast);
@@ -71,7 +71,7 @@ public class
             Id = 2,
             Name = "Updated Name",
             Birthday = new DateOnly(1985, 12, 25),
-            ShowId = show.Id
+            TVShowId = tvShow.Id
         };
 
         // Act
@@ -83,6 +83,6 @@ public class
         value.Should().NotBeNull();
         value!.Name.Should().Be("Updated Name");
         value.Birthday.Should().Be(new DateOnly(1985, 12, 25));
-        value.ShowId.Should().Be(show.Id);
+        value.TVShowId.Should().Be(tvShow.Id);
     }
 }

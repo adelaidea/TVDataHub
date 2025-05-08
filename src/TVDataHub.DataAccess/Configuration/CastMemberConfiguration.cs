@@ -8,7 +8,7 @@ public sealed class CastMemberConfiguration : IEntityTypeConfiguration<CastMembe
 {
     public void Configure(EntityTypeBuilder<CastMember> builder)
     {
-        builder.ToTable("CastMember");
+        builder.ToTable("CastMembers");
 
         builder.HasKey(c => c.Id);
         
@@ -25,7 +25,7 @@ public sealed class CastMemberConfiguration : IEntityTypeConfiguration<CastMembe
             .HasColumnName("Birthday");
         
         builder
-            .Property(c => c.ShowId)
-            .HasColumnName("ShowId");
+            .Property(c => c.TVShowId)
+            .HasColumnName("TVShowId");
     }
 }

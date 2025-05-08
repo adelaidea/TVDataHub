@@ -8,7 +8,7 @@ public class CastMember
 
     public DateOnly Birthday { get; set; }
 
-    public int ShowId { get; set; }
+    public int TVShowId { get; set; }
 
-    public Show Show { get; set; }
+    public TVShow TVShow { get; set; }
 }

@@ -8,11 +8,11 @@ public sealed class TVDataHubContext(DbContextOptions<TVDataHubContext> options)
 {
     public DbSet<CastMember> CastMembers => Set<CastMember>();
     
-    public DbSet<Show> Shows => Set<Show>();
+    public DbSet<TVShow> TVShows => Set<TVShow>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new CastMemberConfiguration());
-        modelBuilder.ApplyConfiguration(new ShowConfiguration());
+        modelBuilder.ApplyConfiguration(new TVShowConfiguration());
     }
 }

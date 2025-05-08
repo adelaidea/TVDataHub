@@ -13,7 +13,7 @@ namespace TVDataHub.DataAccess.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Show",
+                name: "TVShows",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
@@ -21,43 +21,43 @@ namespace TVDataHub.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Shows", x => x.Id);
+                    table.PrimaryKey("PK_TVShows", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "CastMember",
+                name: "CastMembers",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
                     Name = table.Column<string>( nullable: false),
                     Birthday = table.Column<DateOnly>( nullable: false),
-                    ShowId = table.Column<int>( nullable: false)
+                    TVShowId = table.Column<int>( nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CastMember", x => x.Id);
+                    table.PrimaryKey("PK_CastMembers", x => x.Id);
                     table.ForeignKey(
                         name: "FK_CastMember_Show_ShowId",
-                        column: x => x.ShowId,
-                        principalTable: "Show",
+                        column: x => x.TVShowId,
+                        principalTable: "Shows",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CastMember_ShowId",
-                table: "CastMember",
-                column: "ShowId");
+                name: "IX_CastMembers_TVShowId",
+                table: "CastMembers",
+                column: "TVShowId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CastMember");
+                name: "CastMembers");
 
             migrationBuilder.DropTable(
-                name: "Show");
+                name: "Shows");
         }
     }
 }

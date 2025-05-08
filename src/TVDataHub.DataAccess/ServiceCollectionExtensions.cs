@@ -15,7 +15,7 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<TVDataHubContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("PostgresConnection")));
 
-        services.AddScoped<IShowRepository, ShowRepository>();
+        services.AddScoped<ITVShowRepository, TVShowRepository>();
         services.AddScoped<ICastMemberRepository, CastMemberRepository>();
 
         return services;
