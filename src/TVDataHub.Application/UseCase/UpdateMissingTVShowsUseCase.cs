@@ -26,7 +26,7 @@ internal sealed class UpdateMissingTVshowsUseCase(
 
             logger.LogInformation("Last ID: {LastId}, Page: {Page}", lastId, page);
 
-            var tvshowDtos = await TVMazeScraperService.GetPaginatedTVShow(page);
+            var tvshowDtos = await TVMazeScraperService.GetPaginatedTVShowAsync(page);
 
             if (!tvshowDtos.Any())
             {

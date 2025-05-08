@@ -12,54 +12,65 @@ internal class TVMazeScraperService(
 {
     private readonly TVMazeSettings _settings = settings.Value;
     
-    public async Task<IReadOnlyList<TVMazeTVShowDto>> GetPaginatedTVShow(int page)
+    public async Task<IReadOnlyList<TVMazeTVShowDto>> GetPaginatedTVShowAsync(int page)
     {
-        using var response = await httpClient.GetAsync($"{_settings.TVShowsApi}{page}");
+        var requestUri = $"{_settings.TVShowsPaginatedApi}{page}";
+        var response = await httpClient.GetAsync(requestUri);
 
         if (!response.IsSuccessStatusCode)
         {
             return Array.Empty<TVMazeTVShowDto>();
         }
 
-        await using var content = await response.Content.ReadAsStreamAsync();
-
-        var tvShows = await JsonSerializer.DeserializeAsync<IReadOnlyList<TVMazeTVShowDto>>(content) ?? Array.Empty<TVMazeTVShowDto>();
-
-        return tvShows;
+        await using var stream = await response.Content.ReadAsStreamAsync();
+        return await DeserializeAsync<IReadOnlyList<TVMazeTVShowDto>>(stream) ?? Array.Empty<TVMazeTVShowDto>();
     }
 
-    public async Task<TVMazeTVShowDto?> GetTVShow(int id)
+    public async Task<TVMazeTVShowDto?> GetTVShowAsync(int id)
     {
-        var requestUri = _settings.TVShowById.Replace("{id}", id.ToString());
-        
-        using var response = await httpClient.GetAsync(requestUri);
-        
+        var requestUri = _settings.TVShowByIdApi.Replace("{id}", id.ToString());
+
+        var response = await httpClient.GetAsync(requestUri);
         if (!response.IsSuccessStatusCode)
         {
             return null;
         }
 
         var content = await response.Content.ReadAsStringAsync();
-        var TVshow = JsonSerializer.Deserialize<TVMazeTVShowDto>(content);
-
-        return TVshow;
+        return JsonSerializer.Deserialize<TVMazeTVShowDto>(content);
     }
 
-    public async Task<IReadOnlyList<TVMazeCastDto>> GetTVShowCastMembers(int tvShowId)
+    public async Task<IReadOnlyList<TVMazeCastDto>> GetTVShowCastMembersAsync(int tvShowId)
     {
-        var requestUri = _settings.TVShowCastApi.Replace($"{tvShowId}", tvShowId.ToString());
+        var requestUri = _settings.TVShowCastApi.Replace("{id}", tvShowId.ToString());
 
-        using var response = await httpClient.GetAsync(requestUri);
-
+        var response = await httpClient.GetAsync(requestUri);
         if (!response.IsSuccessStatusCode)
         {
             return Array.Empty<TVMazeCastDto>();
         }
 
-        await using var content = await response.Content.ReadAsStreamAsync();
+        await using var stream = await response.Content.ReadAsStreamAsync();
+        return await DeserializeAsync<IReadOnlyList<TVMazeCastDto>>(stream) ?? Array.Empty<TVMazeCastDto>();
+    }
 
-        var castMembers = await JsonSerializer.DeserializeAsync<IReadOnlyList<TVMazeCastDto>>(content) ?? Array.Empty<TVMazeCastDto>();
+    public async Task<Dictionary<int, long>> GetShowUpdatesAsync()
+    {
+        var response = await httpClient.GetAsync(_settings.TVShowsUpdatesApi);
+        if (!response.IsSuccessStatusCode)
+        {
+            return new Dictionary<int, long>();
+        }
 
-        return castMembers;
+        await using var stream = await response.Content.ReadAsStreamAsync();
+        return await DeserializeAsync<Dictionary<int, long>>(stream) ?? new Dictionary<int, long>();
+    }
+
+    private static async Task<T?> DeserializeAsync<T>(Stream stream)
+    {
+        return await JsonSerializer.DeserializeAsync<T>(stream, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
     }
 }

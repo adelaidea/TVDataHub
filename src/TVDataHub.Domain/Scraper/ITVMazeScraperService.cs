@@ -4,9 +4,11 @@ namespace TVDataHub.Domain.Scraper;
 
 public interface ITVMazeScraperService
 {
-    Task<IReadOnlyList<TVMazeTVShowDto>> GetPaginatedTVShow(int page);
+    Task<IReadOnlyList<TVMazeTVShowDto>> GetPaginatedTVShowAsync(int page);
 
-    Task<TVMazeTVShowDto?> GetTVShow(int id);
+    Task<TVMazeTVShowDto?> GetTVShowAsync(int id);
 
-    Task<IReadOnlyList<TVMazeCastDto>> GetTVShowCastMembers(int tvShowId);
+    Task<IReadOnlyList<TVMazeCastDto>> GetTVShowCastMembersAsync(int tvShowId);
+
+    Task<Dictionary<int, long>> GetShowUpdatesAsync();
 }
