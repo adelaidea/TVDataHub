@@ -10,5 +10,7 @@ internal sealed class TVMazeSettings
     
     public string TVShowsUpdatesApi { get; init; }
     
-    public string ShowCastApi { get; init; }
+    public string TVShowCastApi { get; init; }
+
+    public string TVShowUpdates { get; set; }
 }

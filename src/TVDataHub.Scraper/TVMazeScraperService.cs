@@ -47,7 +47,7 @@ internal class TVMazeScraperService(
 
     public async Task<IReadOnlyList<TVMazeCastDto>> GetTVShowCastMembers(int tvShowId)
     {
-        var requestUri = _settings.ShowCastApi.Replace($"{tvShowId}", tvShowId.ToString());
+        var requestUri = _settings.TVShowCastApi.Replace($"{tvShowId}", tvShowId.ToString());
 
         using var response = await httpClient.GetAsync(requestUri);
 
