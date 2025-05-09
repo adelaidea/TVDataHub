@@ -14,5 +14,5 @@ public class TVShow
     
     public long Updated { get; set; }
 
-    public ICollection<CastMember> Cast { get; init; }
+    public ICollection<CastMember> Cast { get; init; } = new List<CastMember>();
 }

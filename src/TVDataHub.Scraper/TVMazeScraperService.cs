@@ -12,23 +12,23 @@ internal class TVMazeScraperService(
 {
     private readonly TVMazeSettings _settings = settings.Value;
     
-    public async Task<IReadOnlyList<TVMazeTVShowDto>> GetPaginatedTVShowAsync(int page)
+    public async Task<IReadOnlyList<TVMazeShowDto>> GetPaginatedTVShowAsync(int page)
     {
         var requestUri = $"{_settings.TVShowsPaginatedApi}{page}";
         var response = await httpClient.GetAsync(requestUri);
 
         if (!response.IsSuccessStatusCode)
         {
-            return Array.Empty<TVMazeTVShowDto>();
+            return Array.Empty<TVMazeShowDto>();
         }
 
         await using var stream = await response.Content.ReadAsStreamAsync();
-        return await DeserializeAsync<IReadOnlyList<TVMazeTVShowDto>>(stream) ?? Array.Empty<TVMazeTVShowDto>();
+        return await DeserializeAsync<IReadOnlyList<TVMazeShowDto>>(stream) ?? Array.Empty<TVMazeShowDto>();
     }
 
-    public async Task<TVMazeTVShowDto?> GetTVShowAsync(int id)
+    public async Task<TVMazeShowWithCastDto?> GetTVShowAsync(int id)
     {
-        var requestUri = _settings.TVShowByIdApi.Replace("{id}", id.ToString());
+        var requestUri = _settings.TVShowByIdWithEmbedCastApi.Replace("{id}", id.ToString());
 
         var response = await httpClient.GetAsync(requestUri);
         if (!response.IsSuccessStatusCode)
@@ -37,7 +37,7 @@ internal class TVMazeScraperService(
         }
 
         var content = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<TVMazeTVShowDto>(content);
+        return JsonSerializer.Deserialize<TVMazeShowWithCastDto>(content);
     }
 
     public async Task<IReadOnlyList<TVMazeCastDto>> GetTVShowCastMembersAsync(int tvShowId)
@@ -54,9 +54,9 @@ internal class TVMazeScraperService(
         return await DeserializeAsync<IReadOnlyList<TVMazeCastDto>>(stream) ?? Array.Empty<TVMazeCastDto>();
     }
 
-    public async Task<Dictionary<int, long>> GetShowUpdatesAsync()
+    public async Task<Dictionary<int, long>> GetTVShowDailyUpdatesAsync()
     {
-        var response = await httpClient.GetAsync(_settings.TVShowsUpdatesApi);
+        var response = await httpClient.GetAsync($"{_settings.TVShowsUpdatesApi}?since=day");
         if (!response.IsSuccessStatusCode)
         {
             return new Dictionary<int, long>();

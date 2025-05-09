@@ -1,11 +1,11 @@
 namespace TVDataHub.Domain.Dto;
 
-public sealed class TVMazeCastDto
+public class TVMazeCastDto
 {
     public TVMazePersonDto Person { get; set; }
 }
 
-public sealed class TVMazePersonDto
+public class TVMazePersonDto
 {
     public int Id { get; set; }
     

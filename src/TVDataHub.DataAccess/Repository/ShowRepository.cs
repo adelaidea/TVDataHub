@@ -24,6 +24,40 @@ public class TVShowRepository(
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task UpsertTVShowWithCast(TVShow tvShow)
+    {
+        foreach (var castMember in tvShow.Cast)
+        {
+            castMember.TVShowId = tvShow.Id;
+        }
+        
+        var existingShow = await dbContext.TVShows
+            .Include(s => s.Cast)
+            .FirstOrDefaultAsync(s => s.Id == tvShow.Id);
+
+        if (existingShow is null)
+        {
+            dbContext.TVShows.Add(tvShow);
+        }
+        else
+        {
+            dbContext.Entry(existingShow).CurrentValues.SetValues(tvShow);
+
+            dbContext.CastMembers.RemoveRange(existingShow.Cast);
+
+            foreach (var cast in tvShow.Cast)
+            {
+                existingShow.Cast.Add(new CastMember
+                {
+                    Name = cast.Name,
+                    TVShowId = existingShow.Id
+                });
+            }
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+    
     public async Task UpsertTVShows(IEnumerable<TVShow> tvShows)
     {
         var tvShowIds = tvShows.Select(s => s.Id).ToList();
@@ -60,9 +94,10 @@ public class TVShowRepository(
             .Select(s => s.Id)
             .FirstOrDefaultAsync();
 
-    public async Task<Dictionary<int, long>> GetLastUpdatedMoment() =>
+    public async Task<Dictionary<int, long>> GetLastUpdatedMoment(int[] ids) =>
         await dbContext.TVShows
             .AsNoTracking()
+            .Where(s => ids.Contains(s.Id))
             .Select(s => new { s.Id, s.Updated })
             .ToDictionaryAsync(x => x.Id, x => x.Updated);
 }

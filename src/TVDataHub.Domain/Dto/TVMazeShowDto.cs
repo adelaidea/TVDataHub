@@ -1,6 +1,6 @@
 namespace TVDataHub.Domain.Dto;
 
-public sealed class TVMazeTVShowDto
+public class TVMazeShowDto
 {
     public int Id { get; set; }
     
@@ -13,4 +13,9 @@ public sealed class TVMazeTVShowDto
     public DateOnly? Ended { get; set; }
     
     public long Updated { get; set; }
+}
+
+public class TVMazeShowWithCastDto : TVMazeShowDto
+{
+    public List<TVMazeCastDto> Cast { get; set; }
 }

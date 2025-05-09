@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TVDataHub.Api.Jobs;
 using TVDataHub.Application;
 using TVDataHub.DataAccess;
 using TVDataHub.Scraper;
@@ -13,6 +14,10 @@ builder.Services.AddDataAccess(builder.Configuration);
 builder.Services.AddUseCases();
 
 builder.Services.AddScraper(builder.Configuration);
+
+builder.Services.AddHostedService<SyncNewTVShowsJob>();
+builder.Services.AddHostedService<SyncTVShowsCastJob>();
+builder.Services.AddHostedService<SyncUpdatedTVShowsJob>();
 
 var app = builder.Build();
 

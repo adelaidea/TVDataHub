@@ -1,19 +1,20 @@
 using Microsoft.Extensions.Logging;
+using TVDataHub.Application.Queues;
 using TVDataHub.Domain.Entity;
 using TVDataHub.Domain.Repository;
 using TVDataHub.Domain.Scraper;
 
 namespace TVDataHub.Application.UseCase;
 
-public interface IUpdateMissingTVshowsUseCase
+public interface IGetAndInsertNewTVShowsUseCase
 {
     Task ExecuteAsync();
 }
 
-internal sealed class UpdateMissingTVshowsUseCase(
+internal sealed class SyncNewTVShowsUseCase(
     ITVMazeScraperService TVMazeScraperService,
     ITVShowRepository tvShowRepository,
-    ILogger<UpdateMissingTVshowsUseCase> logger) : IUpdateMissingTVshowsUseCase
+    ILogger<SyncNewTVShowsUseCase> logger) : IGetAndInsertNewTVShowsUseCase
 {
     public async Task ExecuteAsync()
     {
@@ -46,11 +47,13 @@ internal sealed class UpdateMissingTVshowsUseCase(
 
             await tvShowRepository.UpsertTVShows(tvShows);
 
-            logger.LogInformation("{Count} TVshows upserted successfully.", tvShows.Count);
+            logger.LogInformation("{Count} TVShows upserted successfully.", tvShows.Count);
+
+            StaticQueue<int>.EnqueueMany(tvShows.Select(s=>s.Id).ToList());
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while updating missing TVshows.");
+            logger.LogError(ex, "An error occurred while updating missing TVShows.");
             throw;
         }
     }

@@ -6,7 +6,7 @@ internal sealed class TVMazeSettings
     
     public string TVShowsPaginatedApi { get; init; }
 
-    public string TVShowByIdApi { get; init; }
+    public string TVShowByIdWithEmbedCastApi { get; init; }
     
     public string TVShowsUpdatesApi { get; init; }
     
