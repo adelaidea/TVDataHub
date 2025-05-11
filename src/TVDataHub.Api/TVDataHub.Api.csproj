@@ -20,9 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\TVDataHub.Application\TVDataHub.Application.csproj" />
       <ProjectReference Include="..\TVDataHub.DataAccess\TVDataHub.DataAccess.csproj" />
-      <ProjectReference Include="..\TVDataHub.Scraper\TVDataHub.Scraper.csproj" />
     </ItemGroup>
 
 </Project>

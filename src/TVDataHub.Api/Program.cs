@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TVDataHub.Api.Jobs;
-using TVDataHub.Application;
+using TVDataHub.Core.Extensions;
 using TVDataHub.DataAccess;
-using TVDataHub.Scraper;
+using TVDataHub.DataAccess.Extentions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +12,6 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDataAccess(builder.Configuration);
 builder.Services.AddUseCases();
-
-builder.Services.AddScraper(builder.Configuration);
 
 builder.Services.AddHostedService<SyncNewTVShowsJob>();
 builder.Services.AddHostedService<SyncTVShowsCastJob>();

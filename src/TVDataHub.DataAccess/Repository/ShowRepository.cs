@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using TVDataHub.Domain.Entity;
-using TVDataHub.Domain.Repository;
+using TVDataHub.Core.Domain.Entity;
+using TVDataHub.Core.Repository;
 
 namespace TVDataHub.DataAccess.Repository;
 
@@ -26,38 +26,58 @@ public class TVShowRepository(
 
     public async Task UpsertTVShowWithCast(TVShow tvShow)
     {
-        foreach (var castMember in tvShow.Cast)
+        try
         {
-            castMember.TVShowId = tvShow.Id;
-        }
-        
-        var existingShow = await dbContext.TVShows
-            .Include(s => s.Cast)
-            .FirstOrDefaultAsync(s => s.Id == tvShow.Id);
-
-        if (existingShow is null)
-        {
-            dbContext.TVShows.Add(tvShow);
-        }
-        else
-        {
-            dbContext.Entry(existingShow).CurrentValues.SetValues(tvShow);
-
-            dbContext.CastMembers.RemoveRange(existingShow.Cast);
-
             foreach (var cast in tvShow.Cast)
             {
-                existingShow.Cast.Add(new CastMember
-                {
-                    Name = cast.Name,
-                    TVShowId = existingShow.Id
-                });
+                cast.TVShowId = tvShow.Id;
             }
-        }
 
-        await dbContext.SaveChangesAsync();
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+
+            var existingShow = await dbContext.TVShows
+                .AsNoTracking()
+                .AnyAsync(s => s.Id == tvShow.Id)
+                .ConfigureAwait(false);
+
+            if (!existingShow)
+            {
+                dbContext.TVShows.Add(tvShow);
+            }
+            else
+            {
+                await dbContext.TVShows
+                    .Where(s => s.Id == tvShow.Id)
+                    .ExecuteUpdateAsync(u => u
+                            .SetProperty(p => p.Name, p => tvShow.Name)
+                            .SetProperty(p => p.Updated, p => tvShow.Updated)
+                            .SetProperty(p => p.Premiered, p => tvShow.Premiered)
+                            .SetProperty(p => p.Ended, p => tvShow.Ended)
+                            .SetProperty(p => p.Genres, p => tvShow.Genres))
+                    .ConfigureAwait(false);
+
+                await dbContext.CastMembers
+                    .Where(c => c.TVShowId == tvShow.Id)
+                    .ExecuteDeleteAsync()
+                    .ConfigureAwait(false);
+
+                dbContext.ChangeTracker.Clear();
+
+                await dbContext.CastMembers
+                    .AddRangeAsync(tvShow.Cast)
+                    .ConfigureAwait(false);
+            }
+
+            await dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
     }
-    
+
     public async Task UpsertTVShows(IEnumerable<TVShow> tvShows)
     {
         var tvShowIds = tvShows.Select(s => s.Id).ToList();

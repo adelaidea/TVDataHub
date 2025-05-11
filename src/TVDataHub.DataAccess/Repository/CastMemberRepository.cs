@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using TVDataHub.Domain.Entity;
-using TVDataHub.Domain.Repository;
+using TVDataHub.Core.Domain.Entity;
+using TVDataHub.Core.Repository;
 
 namespace TVDataHub.DataAccess.Repository;
 

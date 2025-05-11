@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
-using TVDataHub.Application.UseCase;
+using TVDataHub.Core.UseCase;
 
-namespace TVDataHub.Application;
+namespace TVDataHub.Core.Extensions;
 
 public static class ServiceCollectionExtensions
 {

@@ -1,4 +1,4 @@
-namespace TVDataHub.Domain.Entity;
+namespace TVDataHub.Core.Domain.Entity;
 
 public class CastMember
 {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using TVDataHub.Application.Dto;
-using TVDataHub.Application.UseCase;
+using TVDataHub.Core.Dto;
+using TVDataHub.Core.UseCase;
 
 namespace TVDataHub.Api.Controllers;
 

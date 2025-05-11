@@ -1,4 +1,4 @@
-namespace TVDataHub.Application.UseCase;
+namespace TVDataHub.Core.UseCase;
 
 public interface IGetAndUpdateTVShowsUseCase
 {

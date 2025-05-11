@@ -1,4 +1,6 @@
-namespace TVDataHub.Domain.Entity;
+using System.ComponentModel.DataAnnotations;
+
+namespace TVDataHub.Core.Domain.Entity;
 
 public class TVShow
 {

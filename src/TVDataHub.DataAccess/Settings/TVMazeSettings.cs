@@ -1,6 +1,6 @@
-namespace TVDataHub.Scraper.Settings;
+namespace TVDataHub.DataAccess.Settings;
 
-internal sealed class TVMazeSettings
+public class TVMazeSettings
 {
     public string BaseApi { get; init; }
     

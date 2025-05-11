@@ -1,4 +1,4 @@
-using TVDataHub.Application.UseCase;
+using TVDataHub.Core.UseCase;
 
 namespace TVDataHub.Api.Jobs;
 

@@ -1,30 +1,40 @@
 using System.Net;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
-using TVDataHub.Domain.Scraper;
-using TVDataHub.Scraper.Settings;
+using TVDataHub.Core.Repository;
+using TVDataHub.Core.Scraper;
+using TVDataHub.DataAccess.Repository;
+using TVDataHub.DataAccess.Scraper;
+using TVDataHub.DataAccess.Settings;
 
-namespace TVDataHub.Scraper;
+namespace TVDataHub.DataAccess.Extentions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddScraper(
+    public static IServiceCollection AddDataAccess(
         this IServiceCollection services,
         IConfiguration configuration)
     {
         services.Configure<TVMazeSettings>(configuration.GetSection("TVMazeSettings"));
-
+        
+        services.AddDbContext<TVDataHubContext>(options =>
+            options.UseNpgsql(configuration.GetConnectionString("PostgresConnection")));
+        
+        services.AddScoped<ITVShowRepository, TVShowRepository>();
+        services.AddScoped<ICastMemberRepository, CastMemberRepository>();
+        
         services.AddLogging();
 
         AddHttpClient(services);
 
         return services;
     }
-
+    
     private static void AddHttpClient(IServiceCollection services)
     {
         services.AddHttpClient<ITVMazeScraperService, TVMazeScraperService>((sp, client) =>

@@ -1,4 +1,4 @@
-namespace TVDataHub.Domain.Dto;
+namespace TVDataHub.Core.Scraper.Dto;
 
 public class TVMazeCastDto
 {

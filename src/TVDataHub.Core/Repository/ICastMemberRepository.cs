@@ -1,6 +1,6 @@
-using TVDataHub.Domain.Entity;
+using TVDataHub.Core.Domain.Entity;
 
-namespace TVDataHub.Domain.Repository;
+namespace TVDataHub.Core.Repository;
 
 public interface ICastMemberRepository
 {

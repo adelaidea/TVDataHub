@@ -1,4 +1,4 @@
-namespace TVDataHub.Application.Dto;
+namespace TVDataHub.Core.Dto;
 
 public record TVShowDto(
     int Id,

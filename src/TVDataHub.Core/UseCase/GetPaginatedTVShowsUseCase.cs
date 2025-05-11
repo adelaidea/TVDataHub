@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Logging;
-using TVDataHub.Application.Dto;
-using TVDataHub.Domain.Repository;
+using TVDataHub.Core.Dto;
+using TVDataHub.Core.Repository;
 
-namespace TVDataHub.Application.UseCase;
+namespace TVDataHub.Core.UseCase;
 
 public interface IGetPaginatedTVShowsUseCase
-{ 
+{
     Task<IReadOnlyCollection<TVShowDto>> ExecuteAsync(int page = 1);
 }
 
@@ -14,7 +14,7 @@ internal sealed class GetPaginatedTVShowsUseCase(
     ILogger<GetPaginatedTVShowsUseCase> logger) : IGetPaginatedTVShowsUseCase
 {
     private readonly int _pageSize = 10;
-    
+
     public async Task<IReadOnlyCollection<TVShowDto>> ExecuteAsync(int page = 1)
     {
         try
@@ -30,8 +30,8 @@ internal sealed class GetPaginatedTVShowsUseCase(
                     Ended: tvShow.Ended,
                     Cast: tvShow.Cast.OrderBy(c => c.Birthday)
                         .Select(c => new CastMemberDto(
-                            c.Id, 
-                            c.Name, 
+                            c.Id,
+                            c.Name,
                             c.Birthday)
                         ).ToList()
                 )).ToList();

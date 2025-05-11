@@ -1,4 +1,4 @@
-namespace TVDataHub.Domain.Dto;
+namespace TVDataHub.Core.Scraper.Dto;
 
 public class TVMazeShowDto
 {
@@ -13,9 +13,6 @@ public class TVMazeShowDto
     public DateOnly? Ended { get; set; }
     
     public long Updated { get; set; }
-}
 
-public class TVMazeShowWithCastDto : TVMazeShowDto
-{
-    public List<TVMazeCastDto> Cast { get; set; }
+    public List<TVMazeCastDto> Cast { get; set; } = new List<TVMazeCastDto>();
 }

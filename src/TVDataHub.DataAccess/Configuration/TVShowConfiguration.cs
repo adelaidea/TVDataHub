@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TVDataHub.Domain.Entity;
+using TVDataHub.Core.Domain.Entity;
 
 namespace TVDataHub.DataAccess.Configuration;
 

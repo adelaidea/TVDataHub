@@ -1,6 +1,6 @@
 using FluentAssertions;
+using TVDataHub.Core.Domain.Entity;
 using TVDataHub.DataAccess.Repository;
-using TVDataHub.Domain.Entity;
 
 namespace TVDataHub.DataAccess.Acceptance.Repository;
 

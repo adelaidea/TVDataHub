@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Logging;
 using TVDataHub.Application.Queues;
-using TVDataHub.Domain.Entity;
-using TVDataHub.Domain.Repository;
-using TVDataHub.Domain.Scraper;
+using TVDataHub.Core.Domain.Entity;
+using TVDataHub.Core.Repository;
+using TVDataHub.Core.Scraper;
 
-namespace TVDataHub.Application.UseCase;
+namespace TVDataHub.Core.UseCase;
 
 public interface IGetAndInsertNewTVShowsUseCase
 {

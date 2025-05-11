@@ -1,10 +1,10 @@
 using System.Text.Json;
 using Microsoft.Extensions.Options;
-using TVDataHub.Domain.Dto;
-using TVDataHub.Domain.Scraper;
-using TVDataHub.Scraper.Settings;
+using TVDataHub.Core.Scraper;
+using TVDataHub.Core.Scraper.Dto;
+using TVDataHub.DataAccess.Settings;
 
-namespace TVDataHub.Scraper;
+namespace TVDataHub.DataAccess.Scraper;
 
 internal class TVMazeScraperService(
     HttpClient httpClient,
@@ -26,7 +26,7 @@ internal class TVMazeScraperService(
         return await DeserializeAsync<IReadOnlyList<TVMazeShowDto>>(stream) ?? Array.Empty<TVMazeShowDto>();
     }
 
-    public async Task<TVMazeShowWithCastDto?> GetTVShowAsync(int id)
+    public async Task<TVMazeShowDto?> GetTVShowAsync(int id)
     {
         var requestUri = _settings.TVShowByIdWithEmbedCastApi.Replace("{id}", id.ToString());
 
@@ -37,7 +37,7 @@ internal class TVMazeScraperService(
         }
 
         var content = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<TVMazeShowWithCastDto>(content);
+        return JsonSerializer.Deserialize<TVMazeShowDto>(content);
     }
 
     public async Task<IReadOnlyList<TVMazeCastDto>> GetTVShowCastMembersAsync(int tvShowId)
