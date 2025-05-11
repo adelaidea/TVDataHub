@@ -33,7 +33,9 @@ internal sealed class GetPaginatedTVShowsUseCase(
                         .Select(c => new CastMemberDto(
                             c.Id,
                             c.Name,
-                            c.Birthday)
+                            c.Birthday,
+                            c.Deathday,
+                            c.Gender)
                         ).ToList()
                 )).ToList();
 

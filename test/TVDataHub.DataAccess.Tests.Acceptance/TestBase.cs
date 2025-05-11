@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 
-namespace TVDataHub.DataAccess.Acceptance;
+namespace TVDataHub.DataAccess.Tests.Acceptance;
 
 public class TestBase : IAsyncLifetime, IAsyncDisposable
 {

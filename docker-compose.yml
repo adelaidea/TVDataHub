@@ -39,7 +39,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5001:80"
+      - "5001:8080"
     depends_on:
       tvdatahub-db:
         condition: service_healthy

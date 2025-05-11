@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using TVDataHub.Application.Queues;
 using TVDataHub.Core.Domain.Entity;
 using TVDataHub.Core.Repository;
 using TVDataHub.Core.Scraper;
@@ -29,6 +28,7 @@ internal sealed class UpsertTVShowUseCase(
             if (tvShowDto is null)
             {
                 logger.LogWarning("TVShow ID {TvShowId} could not be fetched. Skipping.", value);
+                return;
             }
 
             var tvShow = new TVShow

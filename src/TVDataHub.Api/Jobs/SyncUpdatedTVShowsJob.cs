@@ -6,13 +6,14 @@ namespace TVDataHub.Api.Jobs;
 
 public class SyncUpdatedTVShowsJob(
     IServiceScopeFactory serviceScopeFactory,
+    IStaticQueue<TVShowId> tvShowQueue,
     ILogger<SyncUpdatedTVShowsJob> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            TVShowId? showId = await StaticQueue<TVShowId>.DequeueAsync();
+            TVShowId? showId = await tvShowQueue.DequeueAsync();
 
             if (showId == null)
             {

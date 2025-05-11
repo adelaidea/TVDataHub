@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TVDataHub.Core.Domain.Entity;
 using TVDataHub.DataAccess.Repository;
 
-namespace TVDataHub.DataAccess.Acceptance.Repository;
+namespace TVDataHub.DataAccess.Tests.Acceptance.Repository;
 
 public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
 {
@@ -91,9 +91,9 @@ public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
             Updated = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             Cast = new List<Person>
             {
-                new() { Id = 100, Name = "Cast 1", Birthday = new DateOnly(2000, 7, 10) },
-                new() { Id = 200, Name = "Cast 2", Birthday = new DateOnly(1985, 3, 20) },
-                new() { Id = 300, Name = "Cast 3", Birthday = new DateOnly(1995, 10, 1) },
+                new() { Id = 100, Name = "Cast 1", Birthday = new DateOnly(2000, 7, 10), Gender = "Male" },
+                new() { Id = 200, Name = "Cast 2", Birthday = new DateOnly(1985, 3, 20), Gender = "Male" },
+                new() { Id = 300, Name = "Cast 3", Birthday = new DateOnly(1995, 10, 1), Gender = "Female" },
             }
         };
 
@@ -136,8 +136,12 @@ public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
             Updated = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
             Cast = new List<Person>
             {
-                new() { Id = 400, Name = "Cast 1", Birthday = new DateOnly(2000, 7, 10) },
-                new() { Id = 500, Name = "Cast 2", Birthday = new DateOnly(1985, 3, 20) },
+                new() { Id = 400, Name = "Cast 1", Birthday = new DateOnly(2000, 7, 10), Gender = "Male" },
+                new()
+                {
+                    Id = 500, Name = "Cast 2", Birthday = new DateOnly(1985, 3, 20),
+                    Deathday = new DateOnly(2025, 05, 05)
+                },
                 new() { Id = 600, Name = "Cast 3", Birthday = new DateOnly(1995, 10, 1) },
             }
         };
@@ -155,8 +159,12 @@ public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
             Cast = new List<Person>
             {
                 new() { Id = 400, Name = "Cast 1 updated", Birthday = new DateOnly(2000, 7, 10) },
-                new() { Id = 500, Name = "Cast 2", Birthday = new DateOnly(1985, 3, 20) },
-                new() { Id = 600, Name = "Cast 3", Birthday = new DateOnly(1995, 10, 1) },
+                new() { Id = 500, Name = "Cast 2", Birthday = new DateOnly(1985, 3, 20), Gender = "Female" },
+                new()
+                {
+                    Id = 600, Name = "Cast 3", Birthday = new DateOnly(1995, 10, 1),
+                    Deathday = new DateOnly(2025, 04, 29)
+                },
                 new() { Id = 700, Name = "Cast 4", Birthday = new DateOnly(2024, 5, 11) },
             }
         };
@@ -287,6 +295,10 @@ public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
     public async Task GivenMoreThan10StoredTVShowWithCast_WhenGettingPaginated_ShouldReturnOnly10TVShows()
     {
         // Arrange
+        await fixture.DbContext.TVShows.ExecuteDeleteAsync();
+        await fixture.DbContext.Persons.ExecuteDeleteAsync();
+        await fixture.DbContext.SaveChangesAsync();
+
         var tvShows = new List<TVShow>();
 
         for (int i = 0; i < 15; i++)

@@ -8,5 +8,9 @@ public class Person
 
     public DateOnly? Birthday { get; set; }
 
+    public DateOnly? Deathday { get; set; }
+
+    public string Gender { get; set; } = string.Empty;
+    
     public ICollection<TVShow> TVShows { get; set; } = new List<TVShow>();
 }

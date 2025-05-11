@@ -84,6 +84,8 @@ public class TVShowRepository(
             {
                 existingPerson.Name = castMember.Name;
                 existingPerson.Birthday = castMember.Birthday;
+                existingPerson.Deathday = castMember.Deathday;
+                existingPerson.Gender = castMember.Gender;
                 trackedPersons.Add(existingPerson);
             }
         }

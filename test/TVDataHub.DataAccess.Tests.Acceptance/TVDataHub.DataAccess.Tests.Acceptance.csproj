@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <RootNamespace>TVDataHub.DataAccess.Tests.Acceptance</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

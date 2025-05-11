@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using TVDataHub.Application.Queues;
-using TVDataHub.Core.Domain.Entity;
 using TVDataHub.Core.Repository;
 using TVDataHub.Core.Scraper;
 using TVDataHub.Core.Types;
@@ -15,6 +14,7 @@ public interface IGetTVShowsToBeUpsertedUseCase
 internal sealed class GetTVShowsToBeUpsertedUseCase(
     ITVMazeScraperService tvMazeScraperService,
     ITVShowRepository tvShowRepository,
+    IStaticQueue<TVShowId> tvShowQueue,
     ILogger<GetTVShowsToBeUpsertedUseCase> logger) : IGetTVShowsToBeUpsertedUseCase
 {
     public async Task ExecuteAsync()
@@ -49,7 +49,10 @@ internal sealed class GetTVShowsToBeUpsertedUseCase(
             
             logger.LogInformation("Enqueuing {TotalCount} TVShows for update.", tvShowsToBeUpdated.Count);
             
-            StaticQueue<TVShowId>.EnqueueMany(tvShowsToBeUpdated);
+            if(tvShowsToBeUpdated.Count > 0 )
+            {
+                tvShowQueue.EnqueueMany(tvShowsToBeUpdated);
+            }    
             
             var duration = DateTime.UtcNow - startTime;
             logger.LogInformation("TVShow update process completed in {Duration}ms.", duration.TotalMilliseconds);

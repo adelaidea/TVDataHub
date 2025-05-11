@@ -15,5 +15,11 @@ public sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
 
         builder.Property(person => person.Birthday)
             .IsRequired(false);
+
+        builder.Property(person => person.Deathday)
+            .IsRequired(false);
+
+        builder.Property(person => person.Gender)
+            .IsRequired(false);
     }
 }

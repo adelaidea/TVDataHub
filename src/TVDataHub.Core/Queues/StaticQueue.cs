@@ -2,18 +2,27 @@ using System.Collections.Concurrent;
 
 namespace TVDataHub.Application.Queues;
 
-public static class StaticQueue<T>
+public interface IStaticQueue<T>
+{
+    void Enqueue(T item);
+
+    void EnqueueMany(IEnumerable<T> items);
+
+    Task<T?> DequeueAsync();
+}
+
+public class StaticQueue<T> : IStaticQueue<T>
 {
     private static readonly ConcurrentQueue<T> _queue = new();
     private static readonly SemaphoreSlim _signal = new(0);
 
-    public static void Enqueue(T item)
+    public void Enqueue(T item)
     {
         _queue.Enqueue(item);
         _signal.Release();
     }
 
-    public static void EnqueueMany(IEnumerable<T> items)
+    public void EnqueueMany(IEnumerable<T> items)
     {
         int count = 0;
         foreach (var item in items)
@@ -24,7 +33,7 @@ public static class StaticQueue<T>
         _signal.Release(count);
     }
 
-    public static async Task<T?> DequeueAsync()
+    public async Task<T?> DequeueAsync()
     {
         await _signal.WaitAsync();
 

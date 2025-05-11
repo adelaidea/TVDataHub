@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TVDataHub.DataAccess;
@@ -11,9 +12,11 @@ using TVDataHub.DataAccess;
 namespace TVDataHub.DataAccess.Migrations
 {
     [DbContext(typeof(TVDataHubContext))]
-    partial class TVDataHubContextModelSnapshot : ModelSnapshot
+    [Migration("20250511205816_AddPersonGenderAndDeathday")]
+    partial class AddPersonGenderAndDeathday
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

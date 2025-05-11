@@ -55,8 +55,8 @@ docker compose up -d
 
 The application will be available at:
 
-- API: http://localhost:5001
-- PgAdmin: http://localhost:8080
+- API: http://localhost:5276
+- PgAdmin: http://localhost:8081
   - Email: admin@tvdatahub.com
   - Password: admin123
 
@@ -66,7 +66,7 @@ The application will be available at:
 If required, the folowing command can be used to create a new migration to configure the database:
 
 ```bash
-dotnet ef migrations add InitialCreate --project src/TVDataHub.DataAccess --startup-project src/TVDataHub.Api
+dotnet ef migrations add [MigrationName] --project src/TVDataHub.DataAccess --startup-project src/TVDataHub.Api
 ```
 
 ### Database Connection
@@ -143,15 +143,18 @@ dotnet test
 
 ## Assumptions
 
-- The application assumes a PostgreSQL database for data persistence.
--  Docker is used for containerization and to simplify the development environment. 
--  The system is designed to handle concurrent requests and be able to handle with the external API rate limiting by using retry policy. 
--  Data scraping operations are performed asynchronously.
-- TVShow and Cast data update operations are done with all data without priodicity filter to simplify the operation. The decision was based on the current payload size(<1mb).
+- The application uses PostgreSQL as its primary database for data persistence.
+- Docker and Docker Compose are used for containerization and development environment setup.
+- The system implements concurrent request handling with retry policies to manage external API rate limiting.
+- All data scraping operations are performed asynchronously to maintain system responsiveness.
+- TVShow and Cast data updates are performed in bulk without periodicity filters, optimized for payload sizes under 1MB.
+- Cast data updates follow an upsert pattern: new Person entities are created if they don't exist, while existing Person entities only receive new TVShow relationships.
+- The API endpoints for listing TVShows and Characters implement pagination with a default page size of 10 items. The total count of records is included in the response to enable clients to implement complete data retrieval strategies.
 
 ### TV Maze API Assumptions
 
-- A update in the Cast will trigger a update in the `updated` attribute of the Show, then the information will be udpated in the database. 
+- Cast updates trigger updates to the Show's `updated` attribute, which is used to synchronize data in our database.
+- Character information is not persisted in the current implementation. The many-to-many relationship between Person and TVShow entities can be extended in the future to include character-specific information if required.
 
 
 ## Future Improvements
@@ -160,5 +163,3 @@ dotnet test
 - Implement caching layer
 - Add monitoring and logging visualization 
 - Implement CI/CD pipeline
-
-
