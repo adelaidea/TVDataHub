@@ -10,7 +10,7 @@ WORKDIR /src
 
 COPY ["src/TVDataHub.Api/TVDataHub.Api.csproj", "TVDataHub.Api/"]
 COPY ["src/TVDataHub.DataAccess/TVDataHub.DataAccess.csproj", "TVDataHub.DataAccess/"]
-COPY ["src/TVDataHub.Domain/TVDataHub.Domain.csproj", "TVDataHub.Domain/"]
+COPY ["src/TVDataHub.Core/TVDataHub.Core.csproj", "TVDataHub.Core/"]
 RUN dotnet restore "TVDataHub.Api/TVDataHub.Api.csproj"
 COPY . .
 

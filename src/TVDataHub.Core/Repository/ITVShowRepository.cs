@@ -12,7 +12,7 @@ public interface ITVShowRepository
 
     Task<IReadOnlyCollection<TVShow>> GetPaginated(int pageSize, int page = 1);
 
-    Task<int> GetLastId();
+    Task<int> GetTotal();
 
-    Task<Dictionary<int, long>> GetLastUpdatedMoment(int[] ids);
+    Task<Dictionary<int, long>> GetLastUpdatedMoment();
 }

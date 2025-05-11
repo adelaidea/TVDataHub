@@ -16,10 +16,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Settings\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\TVDataHub.DataAccess\TVDataHub.DataAccess.csproj" />
     </ItemGroup>
 

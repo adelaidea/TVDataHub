@@ -26,98 +26,117 @@ public class TVShowRepository(
 
     public async Task UpsertTVShowWithCast(TVShow tvShow)
     {
-        try
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+
+        var persons = await UpsertPerson(tvShow);
+
+        await UpsertTVShow(tvShow, persons);
+
+        await transaction.CommitAsync();
+    }
+
+    private async Task UpsertTVShow(TVShow tvShow, List<Person> persons)
+    {
+        var existingShow = await dbContext.TVShows
+            .Include(s => s.Cast)
+            .FirstOrDefaultAsync(s => s.Id == tvShow.Id)
+            .ConfigureAwait(false);
+
+        if (existingShow is null)
         {
-            foreach (var cast in tvShow.Cast)
+            tvShow.Cast = persons;
+            dbContext.TVShows.Add(tvShow);
+        }
+        else
+        {
+            existingShow.Name = tvShow.Name;
+            existingShow.Premiered = tvShow.Premiered;
+            existingShow.Ended = tvShow.Ended;
+            existingShow.Updated = tvShow.Updated;
+            existingShow.Genres = tvShow.Genres;
+
+            existingShow.Cast.Clear();
+            foreach (var p in persons)
             {
-                cast.TVShowId = tvShow.Id;
+                existingShow.Cast.Add(p);
             }
+        }
 
-            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        await dbContext.SaveChangesAsync().ConfigureAwait(false);
+    }
 
-            var existingShow = await dbContext.TVShows
-                .AsNoTracking()
-                .AnyAsync(s => s.Id == tvShow.Id)
+    private async Task<List<Person>> UpsertPerson(TVShow tvShow)
+    {
+        var trackedPersons = new List<Person>();
+
+        foreach (var castMember in tvShow.Cast)
+        {
+            var existingPerson = await dbContext.Persons
+                .FirstOrDefaultAsync(p => p.Id == castMember.Id)
                 .ConfigureAwait(false);
 
-            if (!existingShow)
+            if (existingPerson == null)
             {
-                dbContext.TVShows.Add(tvShow);
+                dbContext.Persons.Add(castMember);
+                trackedPersons.Add(castMember);
             }
             else
             {
-                await dbContext.TVShows
-                    .Where(s => s.Id == tvShow.Id)
-                    .ExecuteUpdateAsync(u => u
-                            .SetProperty(p => p.Name, p => tvShow.Name)
-                            .SetProperty(p => p.Updated, p => tvShow.Updated)
-                            .SetProperty(p => p.Premiered, p => tvShow.Premiered)
-                            .SetProperty(p => p.Ended, p => tvShow.Ended)
-                            .SetProperty(p => p.Genres, p => tvShow.Genres))
-                    .ConfigureAwait(false);
-
-                await dbContext.CastMembers
-                    .Where(c => c.TVShowId == tvShow.Id)
-                    .ExecuteDeleteAsync()
-                    .ConfigureAwait(false);
-
-                dbContext.ChangeTracker.Clear();
-
-                await dbContext.CastMembers
-                    .AddRangeAsync(tvShow.Cast)
-                    .ConfigureAwait(false);
+                existingPerson.Name = castMember.Name;
+                existingPerson.Birthday = castMember.Birthday;
+                trackedPersons.Add(existingPerson);
             }
+        }
 
-            await dbContext.SaveChangesAsync();
-            await transaction.CommitAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            throw;
-        }
+        await dbContext.SaveChangesAsync()
+            .ConfigureAwait(false);
+
+        return trackedPersons;
     }
 
     public async Task UpsertTVShows(IEnumerable<TVShow> tvShows)
     {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+
         var tvShowIds = tvShows.Select(s => s.Id).ToList();
 
         var existingTVShows = await dbContext.TVShows
             .Where(s => tvShowIds.Contains(s.Id))
             .ToDictionaryAsync(s => s.Id);
 
-        foreach (var tvShow in existingTVShows)
+        foreach (var tvShow in tvShows)
         {
-            if (existingTVShows.TryGetValue(tvShow.Key, out var existing))
+            if (existingTVShows.TryGetValue(tvShow.Id, out var existing))
             {
-                dbContext.Entry(existing).CurrentValues.SetValues(tvShow.Value);
+                dbContext.Entry(existing).CurrentValues.SetValues(tvShow);
             }
             else
             {
-                await dbContext.TVShows.AddAsync(tvShow.Value);
+                await dbContext.TVShows.AddAsync(tvShow);
             }
         }
 
         await dbContext.SaveChangesAsync();
+        await transaction.CommitAsync();
     }
 
     public async Task<IReadOnlyCollection<TVShow>> GetPaginated(int pageSize, int page = 1) =>
         await dbContext.TVShows
+            .AsNoTracking()
+            .OrderBy(s => s.Id)
             .Include(s => s.Cast)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
 
-    public async Task<int> GetLastId() =>
-        await dbContext.TVShows
-            .OrderByDescending(s => s.Id)
-            .Select(s => s.Id)
-            .FirstOrDefaultAsync();
-
-    public async Task<Dictionary<int, long>> GetLastUpdatedMoment(int[] ids) =>
+    public async Task<int> GetTotal() =>
         await dbContext.TVShows
             .AsNoTracking()
-            .Where(s => ids.Contains(s.Id))
+            .CountAsync();
+
+    public async Task<Dictionary<int, long>> GetLastUpdatedMoment() =>
+        await dbContext.TVShows
+            .AsNoTracking()
             .Select(s => new { s.Id, s.Updated })
             .ToDictionaryAsync(x => x.Id, x => x.Updated);
 }

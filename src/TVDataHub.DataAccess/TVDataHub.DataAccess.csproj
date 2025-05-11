@@ -24,4 +24,8 @@
       <ProjectReference Include="..\TVDataHub.Core\TVDataHub.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Migrations\" />
+    </ItemGroup>
+
 </Project>

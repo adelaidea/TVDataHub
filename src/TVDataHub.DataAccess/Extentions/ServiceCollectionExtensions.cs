@@ -26,10 +26,9 @@ public static class ServiceCollectionExtensions
             options.UseNpgsql(configuration.GetConnectionString("PostgresConnection")));
         
         services.AddScoped<ITVShowRepository, TVShowRepository>();
-        services.AddScoped<ICastMemberRepository, CastMemberRepository>();
-        
-        services.AddLogging();
 
+        services.AddScoped<ITVMazeScraperService, TVMazeScraperService>();
+        
         AddHttpClient(services);
 
         return services;
@@ -40,17 +39,15 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<ITVMazeScraperService, TVMazeScraperService>((sp, client) =>
             {
                 var settings = sp.GetRequiredService<IOptions<TVMazeSettings>>().Value;
-
                 client.BaseAddress = new Uri(settings.BaseApi);
             })
-            .AddPolicyHandler(GetRetryPolicy(sp => sp.GetRequiredService<ILogger<ITVMazeScraperService>>()));
+            .AddPolicyHandler((sp, _) =>
+                GetRetryPolicy(sp.GetRequiredService<ILogger<ITVMazeScraperService>>()));
     }
 
     static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(
-        Func<IServiceProvider, ILogger<ITVMazeScraperService>> loggerFactory)
+        ILogger<ITVMazeScraperService> logger)
     {
-        var logger = loggerFactory.Invoke(null);
-
         return HttpPolicyExtensions
             .HandleTransientHttpError()
             .OrResult(msg => msg.StatusCode == HttpStatusCode.TooManyRequests)

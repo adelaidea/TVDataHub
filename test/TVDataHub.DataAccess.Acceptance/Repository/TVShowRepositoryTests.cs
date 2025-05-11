@@ -79,7 +79,7 @@ public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
     }
 
     [Fact]
-    public async Task GivenANonExistingTVShow_WhenUpsertingWithCast_NewValueShouldBeCreated()
+    public async Task GivenANonExistingTVShow_WhenUpsertingWithCastAndCastDoesNotExists_NewValueShouldBeCreated()
     {
         // Arrange
         var tvShow = new TVShow
@@ -89,7 +89,7 @@ public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
             Genres = ["Drama", "Crime"],
             Premiered = new DateOnly(2025, 2, 8),
             Updated = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-            Cast = new List<CastMember>
+            Cast = new List<Person>
             {
                 new() { Id = 100, Name = "Cast 1", Birthday = new DateOnly(2000, 7, 10) },
                 new() { Id = 200, Name = "Cast 2", Birthday = new DateOnly(1985, 3, 20) },
@@ -118,12 +118,12 @@ public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
         result.Cast.OrderBy(c => c.Id)
             .Should()
             .BeEquivalentTo(tvShow.Cast.OrderBy(c => c.Id), options =>
-                options.Excluding(c => c.TVShow)
+                options.Excluding(c => c.TVShows)
                     .WithStrictOrdering());
     }
 
     [Fact]
-    public async Task GivenAnExistingTVShow_WhenUpsertingWithCast_NewValueShouldBeCreated()
+    public async Task GivenAnExistingTVShow_WhenUpsertingWithCastAndCastDataAlsoChanges_ValuesShouldBeUpdated()
     {
         // Arrange
         var tvShow = new TVShow
@@ -134,7 +134,7 @@ public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
             Premiered = new DateOnly(2016, 7, 15),
             Ended = new DateOnly(2020, 10, 10),
             Updated = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
-            Cast = new List<CastMember>
+            Cast = new List<Person>
             {
                 new() { Id = 400, Name = "Cast 1", Birthday = new DateOnly(2000, 7, 10) },
                 new() { Id = 500, Name = "Cast 2", Birthday = new DateOnly(1985, 3, 20) },
@@ -152,7 +152,7 @@ public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
             Premiered = tvShow.Premiered,
             Ended = new DateOnly(2021, 12, 1),
             Updated = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-            Cast = new List<CastMember>
+            Cast = new List<Person>
             {
                 new() { Id = 400, Name = "Cast 1 updated", Birthday = new DateOnly(2000, 7, 10) },
                 new() { Id = 500, Name = "Cast 2", Birthday = new DateOnly(1985, 3, 20) },
@@ -181,7 +181,65 @@ public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
         result.Cast.OrderBy(c => c.Id)
             .Should()
             .BeEquivalentTo(updatedTVShow.Cast.OrderBy(c => c.Id), options =>
-                options.Excluding(c => c.TVShow)
+                options.Excluding(c => c.TVShows)
+                    .WithStrictOrdering());
+    }
+
+    [Fact]
+    public async Task GivenAnExistingTVShow_WhenAddingAndRemovingFromCastList_ValuesShouldBeUpdated()
+    {
+        // Arrange
+        var tvShow = new TVShow
+        {
+            Id = 500,
+            Name = "New TVShow",
+            Genres = ["Sci-Fi", "Horror"],
+            Updated = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
+            Cast = new List<Person>
+            {
+                new() { Id = 800, Name = "Cast 1", Birthday = new DateOnly(2000, 7, 10) },
+                new() { Id = 900, Name = "Cast 2", Birthday = new DateOnly(1985, 3, 20) },
+                new() { Id = 1000, Name = "Cast 3", Birthday = new DateOnly(1995, 10, 1) },
+            }
+        };
+
+        await _tvShowRepository.UpsertTVShowWithCast(tvShow);
+
+        var updatedTVShow = new TVShow
+        {
+            Id = 500,
+            Name = "New TVShow",
+            Genres = ["Sci-Fi", "Horror"],
+            Updated = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            Cast = new List<Person>
+            {
+                new() { Id = 900, Name = "Cast 2", Birthday = new DateOnly(1985, 3, 20) },
+                new() { Id = 1000, Name = "Cast 3 updated", Birthday = new DateOnly(1995, 10, 1) },
+                new() { Id = 2000, Name = "Cast 4" },
+            }
+        };
+
+        // Act
+        await _tvShowRepository.UpsertTVShowWithCast(updatedTVShow);
+
+        // Assert
+        var result = await fixture.DbContext.TVShows
+            .Include(s => s.Cast)
+            .SingleOrDefaultAsync(s => s.Id == tvShow.Id);
+
+        result.Should().NotBeNull();
+
+        result!.Name.Should().Be(updatedTVShow.Name);
+        result.Genres.Should().BeEquivalentTo(updatedTVShow.Genres);
+        result.Premiered.Should().Be(updatedTVShow.Premiered);
+        result.Ended.Should().Be(updatedTVShow.Ended);
+        result.Updated.Should().Be(updatedTVShow.Updated);
+
+        result.Cast.Should().HaveCount(3);
+        result.Cast.OrderBy(c => c.Id)
+            .Should()
+            .BeEquivalentTo(updatedTVShow.Cast.OrderBy(c => c.Id), options =>
+                options.Excluding(c => c.TVShows)
                     .WithStrictOrdering());
     }
 
@@ -191,17 +249,16 @@ public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
         // Arrange
         var tvShow = new TVShow
         {
-            Id = 500,
+            Id = 600,
             Name = "TVShow With Cast",
             Genres = ["Drama", "Thriller"],
-            Premiered = new DateOnly(2020, 1, 1),
-            Ended = new DateOnly(2022, 12, 31),
+            Premiered = new DateOnly(2025, 1, 1),
             Updated = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-            Cast = new List<CastMember>
+            Cast = new List<Person>
             {
-                new() { Id = 800, Name = "Cast 1", Birthday = new DateOnly(2000, 7, 10) },
-                new() { Id = 900, Name = "Cast 2", Birthday = new DateOnly(1985, 3, 20) },
-                new() { Id = 1000, Name = "Cast 3", Birthday = new DateOnly(1995, 10, 1) },
+                new() { Id = 3000, Name = "Cast 1", Birthday = new DateOnly(2000, 7, 10) },
+                new() { Id = 4000, Name = "Cast 2" },
+                new() { Id = 5000, Name = "Cast 3", Birthday = new DateOnly(1995, 10, 1) },
             }
         };
 
@@ -223,6 +280,38 @@ public class TVShowRepositoryTests(TestBase fixture) : IClassFixture<TestBase>
 
         savedTVShow.Cast.Select(c => c.Id)
             .Should()
-            .BeEquivalentTo([800, 900, 1000]);
+            .BeEquivalentTo([3000, 4000, 5000]);
+    }
+
+    [Fact]
+    public async Task GivenMoreThan10StoredTVShowWithCast_WhenGettingPaginated_ShouldReturnOnly10TVShows()
+    {
+        // Arrange
+        var tvShows = new List<TVShow>();
+
+        for (int i = 0; i < 15; i++)
+        {
+            tvShows.Add(new TVShow
+            {
+                Id = 700 + i,
+                Name = "New TVShow",
+                Genres = ["Drama", "Mystery"],
+                Premiered = new DateOnly(2023, 1, 15),
+                Ended = new DateOnly(2024, 1, 15),
+                Updated = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            });
+        }
+
+        // Act
+        await _tvShowRepository.UpsertTVShows(tvShows);
+
+        // Act
+        var result = await _tvShowRepository.GetPaginated(10);
+
+        // Assert
+        result.Should().HaveCount(10);
+        result.Select(s => s.Id)
+            .Should()
+            .BeEquivalentTo([700, 701, 702, 703, 704, 705, 706, 707, 708, 709]);
     }
 }

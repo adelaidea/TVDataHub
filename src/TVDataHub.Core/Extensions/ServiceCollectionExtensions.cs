@@ -9,9 +9,8 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services)
     {
         services.AddScoped<IGetPaginatedTVShowsUseCase, GetPaginatedTVShowsUseCase>();
-        services.AddScoped<IGetAndInsertTVShowsCast, SyncTVShowsCast>();
-        services.AddScoped<IGetAndUpdateTVShowsUseCase, IGetAndUpdateTVShowsUseCase>();
-        services.AddScoped<IGetAndInsertNewTVShowsUseCase, SyncNewTVShowsUseCase>();
+        services.AddScoped<IUpsertTVShowUseCase, UpsertTVShowUseCase>();
+        services.AddScoped<IGetTVShowsToBeUpsertedUseCase, GetTVShowsToBeUpsertedUseCase>();
 
         return services;
     }

@@ -10,19 +10,28 @@ public sealed class TVShowConfiguration : IEntityTypeConfiguration<TVShow>
     {
         builder.ToTable("TVShows");
 
-        builder.HasKey(s => s.Id);
-        
-        builder
-            .Property(s => s.Id)
-            .HasColumnName("Id");
-        
-        builder
-            .Property(s => s.Name)
-            .HasColumnName("Name");
+        builder.HasKey(show => show.Id);
 
+        builder.Property(show => show.Name)
+            .IsRequired();
+
+        builder.Property(show => show.Updated)
+            .IsRequired();
+        
+        builder.Property(show => show.Premiered)
+            .IsRequired(false);
+
+        builder.Property(show => show.Ended)
+            .IsRequired(false);
+
+        builder.Property(show => show.Genres)
+            .HasConversion(
+                v => string.Join(',', v), 
+                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
+        
         builder
-            .HasMany(s => s.Cast)
-            .WithOne(c => c.TVShow)
-            .HasForeignKey(c => c.TVShowId);
+            .HasMany(show => show.Cast)
+            .WithMany(person => person.TVShows)
+            .UsingEntity(j => j.ToTable("TVShowPerson"));
     }
 }

@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace TVDataHub.Core.Domain.Entity;
 
 public class TVShow
@@ -16,5 +14,5 @@ public class TVShow
     
     public long Updated { get; set; }
 
-    public ICollection<CastMember> Cast { get; init; } = new List<CastMember>();
+    public ICollection<Person> Cast { get; set; } = new List<Person>();
 }

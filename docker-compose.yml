@@ -1,17 +1,23 @@
 services:
-  db:
+  tvdatahub-db:
     image: postgres:16
     container_name: tvdatahub-db
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: tvdatahub
+      POSTGRES_DB: TVDataHub
     ports:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     networks:
       - tvdatahub-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d TVDataHub"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+      start_period: 30s
 
   pgadmin:
     image: dpage/pgadmin4
@@ -22,7 +28,7 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - db
+      - tvdatahub-db
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:
@@ -35,9 +41,11 @@ services:
     ports:
       - "5001:80"
     depends_on:
-      - db
+      tvdatahub-db:
+        condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgresConnection=Host=tvdatahub-db;Port=5432;Database=TVDataHub;Username=root;Password=root
     networks:
       - tvdatahub-net
 

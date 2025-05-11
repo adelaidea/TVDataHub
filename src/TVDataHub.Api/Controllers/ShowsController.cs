@@ -12,8 +12,8 @@ public class TVShowsController(
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<TVShowDto>>> Get([FromQuery] int page = 1)
     {
-        var tvShowDtos = await getPaginatedTVShowsUseCase.ExecuteAsync(page);
+        var result = await getPaginatedTVShowsUseCase.ExecuteAsync(page);
 
-        return Ok(tvShowDtos);
+        return Ok(result);
     }
 }
